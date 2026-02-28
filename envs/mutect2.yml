@@ -1,0 +1,15 @@
+name: wgs
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - gatk4=4.4.0.0
+  - picard
+  - samtools
+  - bcftools
+  - htslib
+  - tabix
+  - bedtools
+  - python=3.10
+  - pigz
+  - jq

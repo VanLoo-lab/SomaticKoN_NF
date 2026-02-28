@@ -1,0 +1,28 @@
+name: wgs-plotting
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.3
+  # Tidyverse / plotting
+  - r-ggplot2
+  - r-dplyr
+  - r-readr
+  - r-tidyr
+  - r-stringr
+  - r-scales
+  - r-rcolorbrewer
+
+  # QC / overlap plots
+  - r-upsetr
+  - r-venndiagram
+
+  # Nice to have (robustness)
+  - r-gridextra
+  - r-cowplot
+  - r-ggvenndiagram
+  - r-knitr
+  - r-rmarkdown
+  - quarto
+  - bcftools
+  - htslib

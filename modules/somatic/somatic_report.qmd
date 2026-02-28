@@ -1,0 +1,263 @@
+---
+title: "Somatic Variant Pipeline Report"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    page-layout: full
+    css: custom.css
+execute:
+  echo: false
+  warning: false
+  message: false
+params:
+  sample_id: "Sample"
+  metrics_dir: "metrics"
+  plots_dir: "plots"
+resources:
+  - "plots/**"
+  - "metrics/**"
+---
+```{r setup}
+#| include: false
+suppressPackageStartupMessages({
+  library(readr)
+  library(dplyr)
+  library(stringr)
+  library(glue)
+  library(knitr)
+})
+
+# Resolve paths robustly
+resolve_dir <- function(p) {
+  if (dir.exists(p)) return(normalizePath(p))
+  candidate <- file.path(getwd(), p)
+  if (dir.exists(candidate)) return(normalizePath(candidate))
+  p
+}
+
+metrics_dir <- resolve_dir(params$metrics_dir)
+plots_dir   <- resolve_dir(params$plots_dir)
+
+available_plots <- if (dir.exists(plots_dir)) {
+  list.files(plots_dir, pattern = "\\.(png|pdf)$", full.names = FALSE)
+} else character(0)
+
+# Flexible plot include by filename pattern
+include_plot <- function(pattern, prefer = "png") {
+  matches <- grep(pattern, available_plots, value = TRUE, ignore.case = TRUE)
+  if (length(matches) == 0) {
+    cat(glue("*Plot not found:* `{pattern}`  \n"))
+    return(invisible(NULL))
+  }
+  if (prefer == "png") {
+    pngs <- grep("\\.(png)$", matches, value = TRUE, ignore.case = TRUE)
+    if (length(pngs) > 0) matches <- pngs
+  }
+  knitr::include_graphics(file.path(plots_dir, matches[1]))
+}
+
+read_tsv_safe <- function(path) {
+  if (!file.exists(path) || file.info(path)$size == 0) return(NULL)
+  tryCatch(readr::read_tsv(path, show_col_types = FALSE), error = function(e) NULL)
+}
+
+# Load metrics
+counts_long   <- read_tsv_safe(file.path(metrics_dir, "variant_counts_by_stage.tsv"))
+summary_stats <- read_tsv_safe(file.path(metrics_dir, "summary_stats.tsv"))
+union_anno    <- read_tsv_safe(file.path(metrics_dir, "upset_matrix.tsv"))
+bam_info    <- read_tsv_safe(file.path(metrics_dir, "vcf_dp_summary.tsv"))
+
+`%||%` <- function(a, b) if (!is.null(a) && length(a) > 0 && !all(is.na(a))) a else b
+
+# -----------------------------
+# KPI computations (fallback-friendly)
+# -----------------------------
+
+# KPI 1: total unique variants across all callers (union)
+kpi_total_union <- NA_integer_
+if (!is.null(union_anno) && all(c("CHROM","POS","REF","ALT") %in% names(union_anno))) {
+  kpi_total_union <- nrow(union_anno)
+} else if (!is.null(summary_stats)) {
+  hit <- summary_stats %>% filter(str_detect(metric, "union|k1|total_unique|total_variants"))
+  if (nrow(hit) > 0) kpi_total_union <- suppressWarnings(as.integer(hit$value[1]))
+}
+
+# Extract values from the data frame (first row)
+if (!is.null(bam_info) && nrow(bam_info) > 0) {
+  dp_median <- bam_info$median_dp[1]
+  dp_min <- bam_info$min_dp[1]
+  dp_max <- bam_info$max_dp[1]
+} else {
+  dp_median <- "NA"
+  dp_min <- "NA"
+  dp_max <- "NA"
+}
+
+
+# KPI 2: callers + per-caller counts (choose representative stage for "before consensus")
+caller_stage <- "norm"
+caller_table <- NULL
+if (!is.null(counts_long)) {
+  stage_pref <- c("norm","split","raw")
+  caller_stage <- (stage_pref[stage_pref %in% unique(counts_long$stage)][1]) %||% unique(counts_long$stage)[1]
+  caller_table <- counts_long %>%
+    filter(stage == caller_stage) %>%
+    group_by(caller) %>%
+    summarize(total = sum(count, na.rm = TRUE), .groups = "drop") %>%
+    arrange(desc(total))
+}
+
+fmt_int <- function(x) {
+  if (is.na(x)) return("NA")
+  format(x, big.mark = ",", scientific = FALSE)
+}
+```
+
+## Summary
+
+<div class="kpi-grid">
+
+<div class="kpi-card kpi-card-blue">
+<h3>🔬 Basic Information</h3>
+<div class="kpi-content">
+<p><strong>Sample:</strong> `r params$sample_id`</p>
+<p><strong>Median depth:</strong> `r dp_median`</p>
+<p><strong>Minimum depth:</strong> `r dp_min`</p>
+<p><strong>Maximum depth:</strong> `r dp_max`</p>
+</div>
+</div>
+
+<div class="kpi-card kpi-card-green">
+<h3>🧬 Variant Landscape</h3>
+<div class="kpi-content">
+<div class="kpi-number">`r fmt_int(kpi_total_union)`</div>
+<p class="kpi-description">Total unique variants across all callers (CHROM–POS–REF–ALT union)</p>
+</div>
+</div>
+
+<div class="kpi-card kpi-card-purple">
+<h3>🧪 Caller Summary</h3>
+<div class="kpi-content">
+<p class="kpi-subtitle">Stage: <strong>`r caller_stage`</strong></p>
+```{r callers-kpi-table}
+#| echo: false
+if (is.null(caller_table) || nrow(caller_table) == 0) {
+  cat("*Caller table not available*")
+} else {
+  knitr::kable(
+    caller_table %>% mutate(total = format(total, big.mark=",")),
+    col.names = c("Caller", "Mutations"),
+    align = c("l", "r")
+  )
+}
+```
+</div>
+</div>
+
+</div>
+
+## Pipeline Overview
+
+::: {.plot-row}
+
+::: {.plot-container}
+
+### Variant counts across pipeline stages
+```{r fig1a}
+#| out-width: "100%"
+include_plot("variant_counts_by_stage")
+```
+
+:::
+
+::: {.plot-container}
+
+### Variant composition by caller
+```{r fig1b-counts}
+#| out-width: "100%"
+include_plot("variant_counts_by_caller")
+```
+
+:::
+
+:::
+
+## Agreement and Overlap
+
+::: {.plot-row}
+
+::: {.plot-container}
+
+### Upset plot of variants
+```{r fig2a}
+#| out-width: "100%"
+include_plot("upset_callers")
+```
+
+:::
+
+::: {.plot-container}
+
+### Caller contribution
+```{r fig2b}
+#| out-width: "100%"
+include_plot("caller_contribution")
+```
+
+:::
+
+:::
+
+## K-of-N behavior
+
+::: {.plot-row}
+
+::: {.plot-container}
+
+### Upset plot of variants
+```{r fig3a}
+#| out-width: "100%"
+include_plot("k_curve_combined")
+```
+
+:::
+
+::: {.plot-container}
+
+### Caller contribution
+```{r fig3b}
+#| out-width: "100%"
+include_plot("k_curve_by_vartype_bar")
+```
+
+:::
+
+:::
+
+## Complex events
+
+::: {.plot-row}
+
+::: {.plot-container}
+
+### Upset plot of variants
+```{r fig4a}
+#| out-width: "100%"
+include_plot("mnv_vs_multiallelic_events")
+```
+
+:::
+
+::: {.plot-container}
+
+### Caller contribution
+```{r fig4b}
+#| out-width: "100%"
+include_plot("event_status_pies_merged")
+```
+
+:::
+
+:::

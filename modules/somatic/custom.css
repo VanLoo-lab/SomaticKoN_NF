@@ -1,0 +1,225 @@
+/* KPI Cards Grid Layout - Equal Height, Same Row */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 2rem 0;
+    align-items: stretch;
+  }
+  
+  /* Base Card Styling */
+  .kpi-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .kpi-card h3 {
+    margin: 0 0 1.2rem 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding-bottom: 0.8rem;
+    border-bottom: 3px solid;
+  }
+  
+  .kpi-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  /* Harmonized Color Scheme - Soft Pastels */
+  
+  /* Card 1: Soft Blue */
+  .kpi-card-blue {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-left: 6px solid #2196F3;
+  }
+  
+  .kpi-card-blue h3 {
+    color: #1976D2;
+    border-bottom-color: #2196F3;
+  }
+  
+  /* Card 2: Soft Green */
+  .kpi-card-green {
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    border-left: 6px solid #4CAF50;
+  }
+  
+  .kpi-card-green h3 {
+    color: #388E3C;
+    border-bottom-color: #4CAF50;
+  }
+  
+  /* Card 3: Soft Purple */
+  .kpi-card-purple {
+    background: linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%);
+    border-left: 6px solid #9C27B0;
+  }
+  
+  .kpi-card-purple h3 {
+    color: #7B1FA2;
+    border-bottom-color: #9C27B0;
+  }
+  
+  /* Large Number Display */
+  .kpi-number {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: #333;
+    line-height: 1;
+  }
+  
+  .kpi-description {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.5rem 0 0 0;
+    line-height: 1.4;
+  }
+  
+  .kpi-subtitle {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 0.8rem;
+    text-align: center;
+  }
+  
+  .kpi-content p {
+    margin: 0.5rem 0;
+    color: #555;
+    line-height: 1.6;
+  }
+  
+  /* Table Styling Inside Cards */
+  .kpi-card table {
+    width: 100%;
+    margin-top: 0.8rem;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .kpi-card table thead {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  
+  .kpi-card table th {
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  .kpi-card table td {
+    padding: 0.6rem 0.8rem;
+    color: #555;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .kpi-card table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .kpi-card table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 992px) {
+    .kpi-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .kpi-card {
+      min-height: auto;
+    }
+  }
+  
+  @media (min-width: 993px) and (max-width: 1200px) {
+    .kpi-number {
+      font-size: 2.5rem;
+    }
+    
+    .kpi-card h3 {
+      font-size: 1.1rem;
+    }
+  }
+
+  /* Plot Row - Equal Height Containers with Borders */
+.plot-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin: 2rem 0 0.2rem 0;
+  align-items: stretch;
+}
+
+.plot-container {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;  /* top right bottom left */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plot-container:hover {
+  border-color: #2196F3;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+}
+
+.plot-container h3 {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.plot-container img {
+  flex: 1;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+  margin: 0;         /* Remove all margins */
+  display: block;    /* Remove inline spacing */
+  padding: 0;        /* Remove any padding */
+}
+
+/* Responsive design for plots */
+@media (max-width: 992px) {
+  .plot-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .plot-container {
+    min-height: 400px;
+  }
+}

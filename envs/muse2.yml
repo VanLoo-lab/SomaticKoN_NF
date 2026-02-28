@@ -1,0 +1,10 @@
+name: muse2
+channels:
+  - conda-forge
+  - bioconda
+channel_priority: strict
+dependencies:
+  - muse
+  - samtools
+  - bcftools
+  - htslib

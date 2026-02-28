@@ -1,0 +1,2 @@
+pair_id	tumor_id	tumor_bam	normal_id	normal_bam	gender
+MK545-A_pair	MK545-A	/rsrch6/home/genetics/zzhang18/projects/WGS_pipeline/scripts/pipelines/tests/data/MK545-A.bam	MK545-Control	/rsrch6/home/genetics/zzhang18/projects/WGS_pipeline/scripts/pipelines/tests/data/MK545-Control.bam	male

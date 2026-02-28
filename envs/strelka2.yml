@@ -1,0 +1,12 @@
+name: strelka2
+channels:
+  - conda-forge
+  - bioconda
+channel_priority: strict
+dependencies:
+  - strelka=2.9.10
+  - samtools
+  - bcftools
+  - htslib
+  - tabix
+  - python=2.7  # Strelka2 requires Python 2.7

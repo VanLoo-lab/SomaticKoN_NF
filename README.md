@@ -117,7 +117,7 @@ Notes:
 - Resume requires the same launch/work context and unchanged task signatures.
 - Existing trace/report/timeline/dag files are configured to overwrite in `conf/nextflow.config`.
 
-## Key Parameters
+## Required Parameters
 
 From `conf/nextflow.config`:
 
@@ -126,17 +126,16 @@ From `conf/nextflow.config`:
 - `params.outdir`: output directory root
 - `params.ref`: reference key (default `hg38`)
 - `params.refdir`: reference base directory
-- `params.seq`: sequencing type (default `WGS`)
 - `params.pipeline`: pipeline root directory (default `projectDir`)
-- `params.binDir`: tools scripts path (`${params.pipeline}/modules/somatic`)
-- `params.resolveRefs`: reference resolver script (`${params.pipeline}/bin/lib/resolve_refs.sh`)
-- `params.libDir`: shared library scripts (`${params.pipeline}/bin/lib`)
-- `params.envDir`: env YAML directory (`${params.pipeline}/envs`)
+- `params.condaEnvDir`: conda envs location, the location that you installed all conda env using yml files
 - `params.threads`: default thread count
+
+## Optional Parameters
+
+- `params.seq`: sequencing type (default `WGS`)
 - `params.chroms`: scatter chromosomes (default `chr1-22, chrX`)
 - `params.k_range`: consensus K range
 - `params.k_pick`: selected K for final consensus
-- `params.condaEnvDir`: conda envs location
 
 ## Output Layout
 

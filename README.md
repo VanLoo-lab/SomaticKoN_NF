@@ -58,6 +58,56 @@ Environment files:
 - `envs/strelka2.yml`
 - `envs/plotting.yml`
 
+## Installation
+
+1. Clone the repository and enter it.
+
+```bash
+git clone <repo-url>
+cd pipelines
+```
+
+2. Install Nextflow (choose one method appropriate for your environment).
+
+```bash
+# Example: with Conda
+conda create -n nextflow -c conda-forge -c bioconda nextflow
+conda activate nextflow
+```
+
+3. Create the pipeline Conda environments in a dedicated env root directory.
+
+```bash
+# Choose an env root directory (example)
+mkdir -p /path/to/conda_envs
+
+conda env create --prefix /path/to/conda_envs/wgs          --file envs/mutect2.yml
+conda env create --prefix /path/to/conda_envs/muse2        --file envs/muse2.yml
+conda env create --prefix /path/to/conda_envs/strelka2     --file envs/strelka2.yml
+conda env create --prefix /path/to/conda_envs/wgs-plotting --file envs/plotting.yml
+```
+
+4. Add the Conda environment directory to Nextflow so the pipeline can find these envs.
+
+Option A (recommended): set it in `conf/nextflow.config`.
+
+```groovy
+params {
+  condaEnvDir = "/path/to/conda_envs"
+}
+```
+
+Option B: pass it at runtime.
+
+```bash
+nextflow run main.nf -c conf/nextflow.config --condaEnvDir /path/to/conda_envs ...
+```
+
+Notes:
+
+- `params.condaEnvDir` is optional, but setting it explicitly avoids ambiguity.
+- If not set, the pipeline probes: `${params.pipeline}/conda_envs`, `$HOME/.conda/envs`, and `$HOME/conda-envs`.
+
 ## Input
 
 ### Pair Manifest
@@ -117,7 +167,7 @@ Notes:
 - Resume requires the same launch/work context and unchanged task signatures.
 - Existing trace/report/timeline/dag files are configured to overwrite in `conf/nextflow.config`.
 
-## Required Parameters
+## Key Parameters
 
 From `conf/nextflow.config`:
 
@@ -126,16 +176,17 @@ From `conf/nextflow.config`:
 - `params.outdir`: output directory root
 - `params.ref`: reference key (default `hg38`)
 - `params.refdir`: reference base directory
-- `params.pipeline`: pipeline root directory (default `projectDir`)
-- `params.condaEnvDir`: conda envs location, the location that you installed all conda env using yml files
-- `params.threads`: default thread count
-
-## Optional Parameters
-
 - `params.seq`: sequencing type (default `WGS`)
+- `params.pipeline`: pipeline root directory (default `projectDir`)
+- `params.binDir`: tools scripts path (`${params.pipeline}/modules/somatic`)
+- `params.resolveRefs`: reference resolver script (`${params.pipeline}/bin/lib/resolve_refs.sh`)
+- `params.libDir`: shared library scripts (`${params.pipeline}/bin/lib`)
+- `params.envDir`: env YAML directory (`${params.pipeline}/envs`)
+- `params.threads`: default thread count
 - `params.chroms`: scatter chromosomes (default `chr1-22, chrX`)
 - `params.k_range`: consensus K range
 - `params.k_pick`: selected K for final consensus
+- `params.condaEnvDir`: conda envs location
 
 ## Output Layout
 
